@@ -1,0 +1,158 @@
+name: Documentation Quality Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    name: Check Documentation Links
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+        
+      - name: Check links in documentation
+        run: |
+          find . -name "*.md" -not -path "./node_modules/*" -not -path "./.git/*" | \
+          xargs -I {} markdown-link-check {} --config .github/workflows/link-check-config.json
+        continue-on-error: true
+
+  spell-check:
+    runs-on: ubuntu-latest
+    name: Spell Check Documentation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install cspell
+        run: npm install -g cspell
+        
+      - name: Run spell check
+        run: |
+          cspell "**/*.md" --config .github/workflows/cspell.json
+        continue-on-error: true
+
+  validate-structure:
+    runs-on: ubuntu-latest
+    name: Validate Documentation Structure
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Check required files
+        run: |
+          echo "Checking for required documentation files..."
+          
+          # Check for essential files
+          files=(
+            "README.md"
+            "LICENSE"
+            "CONTRIBUTING.md"
+            "docs/LIFE_System_Overview.md"
+            "technical/Technical_Implementation_Guide.md"
+          )
+          
+          for file in "${files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ $file exists"
+            else
+              echo "❌ $file is missing"
+              exit 1
+            fi
+          done
+          
+      - name: Check image references
+        run: |
+          echo "Checking for broken image references..."
+          
+          # Find all markdown files and check image references
+          find . -name "*.md" -not -path "./.git/*" | while read -r file; do
+            echo "Checking $file..."
+            
+            # Extract image references and check if files exist
+            grep -o '!\[.*\](.*\.png\|.*\.jpg\|.*\.jpeg\|.*\.gif\|.*\.svg)' "$file" | \
+            sed 's/!\[.*\](\(.*\))/\1/' | while read -r img; do
+              # Handle relative paths
+              if [[ "$img" == ../* ]]; then
+                img_path="$(dirname "$file")/$img"
+              elif [[ "$img" == /* ]]; then
+                img_path=".$img"
+              else
+                img_path="$(dirname "$file")/$img"
+              fi
+              
+              # Normalize path
+              img_path=$(realpath -m "$img_path" 2>/dev/null || echo "$img_path")
+              
+              if [ -f "$img_path" ]; then
+                echo "✅ Image found: $img_path"
+              else
+                echo "❌ Missing image: $img_path (referenced in $file)"
+              fi
+            done
+          done
+
+  content-analysis:
+    runs-on: ubuntu-latest
+    name: Content Analysis
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Analyze documentation metrics
+        run: |
+          echo "📊 Documentation Metrics Report"
+          echo "================================"
+          
+          # Count total files
+          total_md_files=$(find . -name "*.md" -not -path "./.git/*" | wc -l)
+          echo "📄 Total Markdown files: $total_md_files"
+          
+          # Count total words
+          total_words=$(find . -name "*.md" -not -path "./.git/*" -exec cat {} \; | wc -w)
+          echo "📝 Total words: $total_words"
+          
+          # Count total lines
+          total_lines=$(find . -name "*.md" -not -path "./.git/*" -exec cat {} \; | wc -l)
+          echo "📏 Total lines: $total_lines"
+          
+          # Count images
+          total_images=$(find . -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.svg" | wc -l)
+          echo "🖼️  Total images: $total_images"
+          
+          # Analyze key documents
+          echo ""
+          echo "📋 Key Document Analysis:"
+          echo "========================"
+          
+          key_docs=(
+            "README.md"
+            "docs/LIFE_System_Overview.md"
+            "technical/Technical_Implementation_Guide.md"
+          )
+          
+          for doc in "${key_docs[@]}"; do
+            if [ -f "$doc" ]; then
+              words=$(cat "$doc" | wc -w)
+              lines=$(cat "$doc" | wc -l)
+              echo "📖 $doc: $words words, $lines lines"
+            fi
+          done
+
