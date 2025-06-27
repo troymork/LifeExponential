@@ -1,0 +1,95 @@
+# LIFE System GitHub Pages Configuration
+
+# Site settings
+title: "LIFE System: Living Integrated Flow Economics"
+description: "A comprehensive framework for regenerative economic systems that align human prosperity with ecological health through cooperative abundance."
+baseurl: "/LifeExponential"
+url: "https://troymork.github.io"
+
+# Author information
+author:
+  name: "Troy Mork"
+  email: "contact@lifesystem.org"
+
+# Build settings
+theme: minima
+markdown: kramdown
+highlighter: rouge
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Navigation
+header_pages:
+  - LIFE_System_Overview.md
+  - ../technical/Technical_Implementation_Guide.md
+  - component_analysis.md
+  - improvement_suggestions.md
+  - real_world_references.md
+  - synergy_analysis.md
+
+# Collections
+collections:
+  technical:
+    output: true
+    permalink: /:collection/:name/
+
+# Exclude files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# Include files
+include:
+  - _pages
+
+# Kramdown settings
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: true
+
+# SEO settings
+twitter:
+  username: lifesystem
+  card: summary_large_image
+
+social:
+  name: LIFE System Project
+  links:
+    - https://github.com/troymork/LifeExponential
+
+# Google Analytics (add your tracking ID when ready)
+# google_analytics: UA-XXXXXXXX-X
+
+# Site logo
+logo: /assets/images/life_system_architecture.png
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "Troy Mork"
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+  - scope:
+      path: "docs"
+      type: "pages"
+    values:
+      layout: "page"
+      show_sidebar: true
+

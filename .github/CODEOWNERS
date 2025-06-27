@@ -1,0 +1,30 @@
+# LIFE System Code Owners
+# This file defines who should be automatically requested for review
+# when changes are made to specific parts of the repository.
+
+# Global owners - will be requested for review on all changes
+* @troymork
+
+# Documentation owners
+/docs/ @troymork
+/README.md @troymork
+/CONTRIBUTING.md @troymork
+
+# Technical documentation
+/technical/ @troymork
+
+# GitHub configuration
+/.github/ @troymork
+
+# Images and assets
+/images/ @troymork
+/assets/ @troymork
+
+# Specific high-impact files
+/docs/LIFE_System_Overview.md @troymork
+/technical/Technical_Implementation_Guide.md @troymork
+/docs/_config.yml @troymork
+
+# License and legal files
+/LICENSE @troymork
+
